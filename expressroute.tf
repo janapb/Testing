@@ -49,7 +49,7 @@ resource "azurerm_public_ip" "lz_pubip" {
   allocation_method   = "Dynamic"
 }
 
-/*
+
 resource "azurerm_virtual_network_gateway" "lz_virnetworkgateway" {
   for_each =  { for k in local.lz.VirtualNetworkgateway : k.Name => k}
   name                = each.value.Name
@@ -71,7 +71,7 @@ resource "azurerm_virtual_network_gateway" "lz_virnetworkgateway" {
 }
 
 
-
+/*
 resource "azurerm_virtual_network_gateway_connection" "onpremise" {
   count = length(local.lz.VirtualNetworkgateway)
   name                = "${lookup(element(local.lz.VirtualNetworkgateway, count.index), "Name")}-connect"
