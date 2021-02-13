@@ -3,6 +3,42 @@ locals {
   lz = jsondecode(file("lz_input.json"))
 
 }
+
+# Create a resource group
+resource "azurerm_resource_group" "lz_rg" {
+  for_each =  { for k in local.lz.ResourceGroup : k.Env => k}
+  name = each.value.Name
+  location = each.value.Region
+  tags     = merge(local.lz.Tags[0],{
+  Resourcetype="ResourceGroup"
+  })
+}
+
+
+# Creates Virtual Networks 
+resource "azurerm_virtual_network" "lz_vnet" {
+  for_each =  { for k in local.lz.Vnet : k.Vnet => k}
+  name                = each.value.Vnet_Name
+  location            = each.value.Region
+  resource_group_name = each.value.Resourcegroup_Name
+  address_space       = [each.value.Addres_Space]
+  tags     = merge(local.lz.Tags[0],{
+    Resourcetype="VirtualNetwork"
+  })
+  }
+
+    
+# Creates Subnets 
+resource "azurerm_subnet" "lz_subnet" {
+  for_each =  { for k in local.lz.Subnet : k.Subnet_Name => k}
+  name                 = each.value.Subnet_Name
+  resource_group_name  = each.value.Resourcegroup_Name
+  virtual_network_name = each.value.Vnet_Name
+  address_prefix       = each.value.Address_Space
+  depends_on = [azurerm_virtual_network.lz_vnet]
+}
+
+
 resource "azurerm_express_route_circuit" "lz_connect" {
   for_each =  { for k in local.lz.Expressroute : k.Name => k}
   name                  = each.value.Name
